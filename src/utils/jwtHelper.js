@@ -1,7 +1,7 @@
 // const jwt = require('jsonwebtoken');
 
-const SECRET      = process.env.JWT_SECRET ?? 'un_secret';
-const EXPIRES_IN  = process.env.JWT_EXPIRES_IN || '8h';
+const SECRET      = process.env.JWT_SECRET ;
+const EXPIRES_IN  = process.env.JWT_EXPIRES_IN ;
 
 if (!SECRET) {
   throw new Error('❌ JWT_SECRET manquant dans les variables d\'environnement');
