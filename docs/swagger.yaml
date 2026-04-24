@@ -1,0 +1,400 @@
+openapi: 3.0.3
+info:
+  title: School Management API
+  description: |
+    API REST pour la gestion des écoles primaires.
+    
+    **Rôles disponibles :**
+    - `0` root  
+    - `1` Admin  
+    - `2` Fondateur  
+    - `3` Directeur  
+    - `1` Enseignant (typePersonne)  
+    - `2` Administratif  
+    - `3` Scolarité  
+    - `4` Parent
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000/api
+    description: Serveur de développement
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+    Success:
+      type: object
+      properties:
+        message:
+          type: string
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Système]
+      summary: Vérification de l'état du serveur
+      security: []
+      responses:
+        '200':
+          description: Serveur opérationnel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # ─── AUTHENTIFICATION ─────────────────────────────────────────
+  /auth/login:
+    post:
+      tags: [Authentification]
+      summary: Connexion d'un utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Succès
+
+  /auth/me:
+    get:
+      tags: [Authentification]
+      summary: Récupérer le profil courant
+      responses:
+        '200':
+          description: Succès
+
+  # ─── ELEVES ───────────────────────────────────────────────────
+  /eleves:
+    get:
+      tags: [Elèves]
+      summary: Récupérer tous les élèves
+      responses:
+        '200':
+          description: Liste des élèves
+    post:
+      tags: [Elèves]
+      summary: Ajouter un élève
+      responses:
+        '201':
+          description: Elève créé
+
+  /eleves/{matricule}:
+    get:
+      tags: [Elèves]
+      summary: Détails d'un élève
+      parameters:
+        - name: matricule
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    put:
+      tags: [Elèves]
+      summary: Modifier un élève
+      parameters:
+        - name: matricule
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    delete:
+      tags: [Elèves]
+      summary: Supprimer un élève
+      parameters:
+        - name: matricule
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+
+  # ─── ENSEIGNANTS ──────────────────────────────────────────────
+  /enseignants:
+    get:
+      tags: [Enseignants]
+      summary: Récupérer tous les enseignants
+      responses:
+        '200':
+          description: Succès
+    post:
+      tags: [Enseignants]
+      summary: Ajouter un enseignant
+      responses:
+        '201':
+          description: Succès
+
+  /enseignants/{idEnseignant}:
+    get:
+      tags: [Enseignants]
+      summary: Détails d'un enseignant
+      parameters:
+        - name: idEnseignant
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    put:
+      tags: [Enseignants]
+      summary: Modifier un enseignant
+      parameters:
+        - name: idEnseignant
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    delete:
+      tags: [Enseignants]
+      summary: Supprimer un enseignant
+      parameters:
+        - name: idEnseignant
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+
+  # ─── PARENTS ──────────────────────────────────────────────────
+  /parents:
+    get:
+      tags: [Parents]
+      summary: Récupérer tous les parents
+      responses:
+        '200':
+          description: Succès
+    post:
+      tags: [Parents]
+      summary: Ajouter un parent (et lier un enfant)
+      responses:
+        '201':
+          description: Succès
+
+  /parents/{idPers}:
+    get:
+      tags: [Parents]
+      summary: Détails d'un parent
+      parameters:
+        - name: idPers
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    put:
+      tags: [Parents]
+      summary: Modifier les infos d'un parent
+      parameters:
+        - name: idPers
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    delete:
+      tags: [Parents]
+      summary: Supprimer un parent
+      parameters:
+        - name: idPers
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+
+  # ─── CYCLES ───────────────────────────────────────────────────
+  /cycles:
+    get:
+      tags: [Cycles]
+      summary: Récupérer tous les cycles
+      responses:
+        '200':
+          description: Succès
+    post:
+      tags: [Cycles]
+      summary: Créer un cycle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Succès
+
+  /cycles/{idCycle}:
+    get:
+      tags: [Cycles]
+      summary: Détails d'un cycle
+      parameters:
+        - name: idCycle
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    put:
+      tags: [Cycles]
+      summary: Modifier un cycle
+      parameters:
+        - name: idCycle
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Succès
+    delete:
+      tags: [Cycles]
+      summary: Supprimer un cycle
+      parameters:
+        - name: idCycle
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+
+  # ─── CLASSES ──────────────────────────────────────────────────
+  /classes:
+    get:
+      tags: [Classes]
+      summary: Récupérer toutes les classes
+      responses:
+        '200':
+          description: Succès
+    post:
+      tags: [Classes]
+      summary: Créer une classe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle:
+                  type: string
+                idCycle:
+                  type: integer
+      responses:
+        '201':
+          description: Succès
+
+  /classes/{idClasse}:
+    get:
+      tags: [Classes]
+      summary: Détails d'une classe
+      parameters:
+        - name: idClasse
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
+    put:
+      tags: [Classes]
+      summary: Modifier une classe
+      parameters:
+        - name: idClasse
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle:
+                  type: string
+                idCycle:
+                  type: integer
+      responses:
+        '200':
+          description: Succès
+    delete:
+      tags: [Classes]
+      summary: Supprimer une classe
+      parameters:
+        - name: idClasse
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succès
