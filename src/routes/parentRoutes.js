@@ -4,6 +4,7 @@ const parentController = require('../controllers/parentController');
 const authMiddleware = require('../middleware/authMiddleware');
 const { allowAdmin, allowAny } = require('../middleware/roleMiddleware');
 const validate = require('../middleware/validateMiddleware');
+const { verifyOwnProfileAccess } = require('../middleware/parentAccessMiddleware');
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -40,6 +41,7 @@ router.get('/',
 // GET /api/parents/:idPers
 router.get('/:idPers',
   allowAny({ admins: [0, 1, 2, 3], personnes: [2, 3, 4] }),
+  verifyOwnProfileAccess,
   [param('idPers').isInt({ min: 1 }).withMessage('idPers invalide')],
   validate,
   parentController.getOne
@@ -48,6 +50,7 @@ router.get('/:idPers',
 // GET /api/parents/:idPers/enfants
 router.get('/:idPers/enfants',
   allowAny({ admins: [0, 1, 2, 3], personnes: [2, 3, 4] }),
+  verifyOwnProfileAccess,
   [param('idPers').isInt({ min: 1 }).withMessage('idPers invalide')],
   validate,
   parentController.getEnfants

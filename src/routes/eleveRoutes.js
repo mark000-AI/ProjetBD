@@ -5,6 +5,7 @@ const authMiddleware   = require('../middleware/authMiddleware');
 const { allowAdmin, allowAny } = require('../middleware/roleMiddleware');
 const { handleUpload, uploadPhoto } = require('../middleware/uploadMiddleware');
 const validate         = require('../middleware/validateMiddleware');
+const { verifyParentChildAccess } = require('../middleware/parentAccessMiddleware');
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ router.get('/classe/:idClasse',
  */
 router.get('/:matricule',
   allowAny({ admins: [0, 1, 2, 3], personnes: [1, 2, 3, 4] }),
+  verifyParentChildAccess,
   [param('matricule').isInt({ min: 1 }).withMessage('Matricule invalide')],
   validate,
   eleveController.getOne

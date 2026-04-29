@@ -2,22 +2,21 @@ openapi: 3.0.3
 info:
   title: School Management API
   description: |
-    API REST pour la gestion des écoles primaires.
+    API REST complète pour la gestion des écoles primaires.
     
-    **Rôles disponibles :**
-    - `0` root  
-    - `1` Admin  
-    - `2` Fondateur  
-    - `3` Directeur  
-    - `1` Enseignant (typePersonne)  
-    - `2` Administratif  
-    - `3` Scolarité  
-    - `4` Parent
-  version: 1.0.0
+    Cette documentation est ordonnée **strictement par ordre d'exécution** (dépendances).
+    Veuillez suivre cet ordre pour vos tests afin d'éviter les erreurs de clés étrangères.
+    
+    **Rôles Admin :**
+    - `0` Root Admin, `1` Admin général, `2` Fondateur, `3` Directeur
+    
+    **Rôles Personnes :**
+    - `1` Enseignant, `2` Administratif, `3` Scolarité, `4` Parent
+  version: 2.0.0
 
 servers:
   - url: http://localhost:5000/api
-    description: Serveur de développement
+    description: Serveur Local
 
 components:
   securitySchemes:
@@ -26,45 +25,26 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
-  schemas:
-    Error:
-      type: object
-      properties:
-        message:
-          type: string
-    Success:
-      type: object
-      properties:
-        message:
-          type: string
-
 security:
   - bearerAuth: []
 
-paths:
-  /health:
-    get:
-      tags: [Système]
-      summary: Vérification de l'état du serveur
-      security: []
-      responses:
-        '200':
-          description: Serveur opérationnel
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  timestamp:
-                    type: string
-                    format: date-time
+tags:
+  - name: 1. Authentification
+  - name: 2. Structure Académique
+  - name: 3. Structure Pédagogique
+  - name: 4. Scolarité & Élèves
+  - name: 5. Utilisateurs
+  - name: 6. Vie Scolaire
+  - name: 7. Évaluations
+  - name: 8. Finance
 
-  # ─── AUTHENTIFICATION ─────────────────────────────────────────
+paths:
+  # ==========================================
+  # 1. AUTHENTIFICATION
+  # ==========================================
   /auth/login:
     post:
-      tags: [Authentification]
+      tags: [1. Authentification]
       summary: Connexion d'un utilisateur
       security: []
       requestBody:
@@ -74,192 +54,70 @@ paths:
             schema:
               type: object
               properties:
-                username:
-                  type: string
-                password:
-                  type: string
+                username: { type: string }
+                password: { type: string }
+                userType: { type: string, enum: [admin, personne] }
+              example:
+                username: "admin"
+                password: "admin"
+                userType: "admin"
       responses:
-        '200':
-          description: Succès
+        '200': { description: Succès }
 
-  /auth/me:
-    get:
-      tags: [Authentification]
-      summary: Récupérer le profil courant
-      responses:
-        '200':
-          description: Succès
-
-  # ─── ELEVES ───────────────────────────────────────────────────
-  /eleves:
-    get:
-      tags: [Elèves]
-      summary: Récupérer tous les élèves
-      responses:
-        '200':
-          description: Liste des élèves
+  # ==========================================
+  # 2. STRUCTURE ACADEMIQUE
+  # ==========================================
+  /annees:
     post:
-      tags: [Elèves]
-      summary: Ajouter un élève
+      tags: [2. Structure Académique]
+      summary: 2.1 Créer une Année Académique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle: { type: string, example: "2025-2026" }
+                periode: { type: string, example: "Sept 2025 - Juin 2026" }
       responses:
-        '201':
-          description: Elève créé
-
-  /eleves/{matricule}:
+        '201': { description: Succès }
     get:
-      tags: [Elèves]
-      summary: Détails d'un élève
-      parameters:
-        - name: matricule
-          in: path
-          required: true
-          schema:
-            type: integer
+      tags: [2. Structure Académique]
+      summary: Lister les Années Académiques
       responses:
-        '200':
-          description: Succès
-    put:
-      tags: [Elèves]
-      summary: Modifier un élève
-      parameters:
-        - name: matricule
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
-    delete:
-      tags: [Elèves]
-      summary: Supprimer un élève
-      parameters:
-        - name: matricule
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
+        '200': { description: Succès }
 
-  # ─── ENSEIGNANTS ──────────────────────────────────────────────
-  /enseignants:
-    get:
-      tags: [Enseignants]
-      summary: Récupérer tous les enseignants
-      responses:
-        '200':
-          description: Succès
+  /trimestres:
     post:
-      tags: [Enseignants]
-      summary: Ajouter un enseignant
+      tags: [2. Structure Académique]
+      summary: 2.2 Créer un Trimestre
+      description: Nécessite l'ID d'une année (idAca) existante.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle: { type: string, example: "Premier Trimestre" }
+                periode: { type: string, example: "Septembre - Décembre" }
+                idAca: { type: integer, example: 1 }
       responses:
-        '201':
-          description: Succès
-
-  /enseignants/{idEnseignant}:
+        '201': { description: Succès }
     get:
-      tags: [Enseignants]
-      summary: Détails d'un enseignant
-      parameters:
-        - name: idEnseignant
-          in: path
-          required: true
-          schema:
-            type: integer
+      tags: [2. Structure Académique]
+      summary: Lister les Trimestres
       responses:
-        '200':
-          description: Succès
-    put:
-      tags: [Enseignants]
-      summary: Modifier un enseignant
-      parameters:
-        - name: idEnseignant
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
-    delete:
-      tags: [Enseignants]
-      summary: Supprimer un enseignant
-      parameters:
-        - name: idEnseignant
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
+        '200': { description: Succès }
 
-  # ─── PARENTS ──────────────────────────────────────────────────
-  /parents:
-    get:
-      tags: [Parents]
-      summary: Récupérer tous les parents
-      responses:
-        '200':
-          description: Succès
-    post:
-      tags: [Parents]
-      summary: Ajouter un parent (et lier un enfant)
-      responses:
-        '201':
-          description: Succès
-
-  /parents/{idPers}:
-    get:
-      tags: [Parents]
-      summary: Détails d'un parent
-      parameters:
-        - name: idPers
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
-    put:
-      tags: [Parents]
-      summary: Modifier les infos d'un parent
-      parameters:
-        - name: idPers
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
-    delete:
-      tags: [Parents]
-      summary: Supprimer un parent
-      parameters:
-        - name: idPers
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
-
-  # ─── CYCLES ───────────────────────────────────────────────────
+  # ==========================================
+  # 3. STRUCTURE PEDAGOGIQUE
+  # ==========================================
   /cycles:
-    get:
-      tags: [Cycles]
-      summary: Récupérer tous les cycles
-      responses:
-        '200':
-          description: Succès
     post:
-      tags: [Cycles]
-      summary: Créer un cycle
+      tags: [3. Structure Pédagogique]
+      summary: 3.1 Créer un Cycle
       requestBody:
         required: true
         content:
@@ -267,74 +125,21 @@ paths:
             schema:
               type: object
               properties:
-                libelle:
-                  type: string
-                description:
-                  type: string
+                libelle: { type: string, example: "Cycle 2" }
+                description: { type: string, example: "Apprentissages fondamentaux" }
       responses:
-        '201':
-          description: Succès
-
-  /cycles/{idCycle}:
+        '201': { description: Succès }
     get:
-      tags: [Cycles]
-      summary: Détails d'un cycle
-      parameters:
-        - name: idCycle
-          in: path
-          required: true
-          schema:
-            type: integer
+      tags: [3. Structure Pédagogique]
+      summary: Lister les Cycles
       responses:
-        '200':
-          description: Succès
-    put:
-      tags: [Cycles]
-      summary: Modifier un cycle
-      parameters:
-        - name: idCycle
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                libelle:
-                  type: string
-                description:
-                  type: string
-      responses:
-        '200':
-          description: Succès
-    delete:
-      tags: [Cycles]
-      summary: Supprimer un cycle
-      parameters:
-        - name: idCycle
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Succès
+        '200': { description: Succès }
 
-  # ─── CLASSES ──────────────────────────────────────────────────
   /classes:
-    get:
-      tags: [Classes]
-      summary: Récupérer toutes les classes
-      responses:
-        '200':
-          description: Succès
     post:
-      tags: [Classes]
-      summary: Créer une classe
+      tags: [3. Structure Pédagogique]
+      summary: 3.2 Créer une Classe
+      description: Nécessite l'ID d'un cycle (idCycle).
       requestBody:
         required: true
         content:
@@ -342,36 +147,21 @@ paths:
             schema:
               type: object
               properties:
-                libelle:
-                  type: string
-                idCycle:
-                  type: integer
+                libelle: { type: string, example: "CE1 A" }
+                idCycle: { type: integer, example: 1 }
       responses:
-        '201':
-          description: Succès
-
-  /classes/{idClasse}:
+        '201': { description: Succès }
     get:
-      tags: [Classes]
-      summary: Détails d'une classe
-      parameters:
-        - name: idClasse
-          in: path
-          required: true
-          schema:
-            type: integer
+      tags: [3. Structure Pédagogique]
+      summary: Lister les Classes
       responses:
-        '200':
-          description: Succès
-    put:
-      tags: [Classes]
-      summary: Modifier une classe
-      parameters:
-        - name: idClasse
-          in: path
-          required: true
-          schema:
-            type: integer
+        '200': { description: Succès }
+
+  /salles:
+    post:
+      tags: [3. Structure Pédagogique]
+      summary: 3.3 Créer une Salle
+      description: Associe une salle physique à une classe.
       requestBody:
         required: true
         content:
@@ -379,22 +169,276 @@ paths:
             schema:
               type: object
               properties:
-                libelle:
-                  type: string
-                idCycle:
-                  type: integer
+                libelle: { type: string, example: "Salle 102" }
+                position: { type: string, example: "Bâtiment A" }
+                surface: { type: string, example: "50m2" }
+                idClasse: { type: integer, example: 1 }
       responses:
-        '200':
-          description: Succès
-    delete:
-      tags: [Classes]
-      summary: Supprimer une classe
+        '201': { description: Succès }
+
+  /cours:
+    post:
+      tags: [3. Structure Pédagogique]
+      summary: 3.4 Créer un Cours (Matière)
+      description: Nécessite l'ID d'une classe (idClasse).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle: { type: string, example: "Mathématiques" }
+                coefficient: { type: number, example: 2 }
+                note: { type: number, example: 20 }
+                idClasse: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  # ==========================================
+  # 4. SCOLARITE & ELEVES
+  # ==========================================
+  /scolarites:
+    post:
+      tags: [4. Scolarité & Élèves]
+      summary: 4.1 Configurer la Scolarité
+      description: Définit les frais pour un cycle.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inscription: { type: number, example: 10000 }
+                pension: { type: number, example: 50000 }
+                idCycle: { type: integer, example: 1 }
+                nbreTranche: { type: integer, example: 3 }
+      responses:
+        '201': { description: Succès }
+
+  /eleves:
+    post:
+      tags: [4. Scolarité & Élèves]
+      summary: 4.2 Inscrire un Élève
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom: { type: string, example: "Dupont" }
+                prenom: { type: string, example: "Jean" }
+                dateNaissance: { type: string, format: date, example: "2015-05-12" }
+                lieuNaissance: { type: string, example: "Paris" }
+                sexe: { type: integer, example: 1, description: "0=Fille, 1=Garçon" }
+                idVilleNaissance: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+    get:
+      tags: [4. Scolarité & Élèves]
+      summary: Lister les Élèves
+      responses:
+        '200': { description: Succès }
+
+  # ==========================================
+  # 5. UTILISATEURS (PERSONNEL & PARENTS)
+  # ==========================================
+  /enseignants:
+    post:
+      tags: [5. Utilisateurs]
+      summary: 5.1 Créer un Enseignant
+      description: Nécessite un idCours existant.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom: { type: string, example: "Martin" }
+                prenom: { type: string, example: "Paul" }
+                dateNaissance: { type: string, format: date, example: "1980-08-20" }
+                lieuNaissance: { type: string, example: "Lyon" }
+                username: { type: string, example: "pmartin" }
+                password: { type: string, example: "password123" }
+                idCours: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  /parents:
+    post:
+      tags: [5. Utilisateurs]
+      summary: 5.2 Créer un Parent
+      description: Nécessite le matricule d'un élève.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom: { type: string, example: "Dupont" }
+                prenom: { type: string, example: "Michel" }
+                dateNaissance: { type: string, format: date, example: "1975-02-15" }
+                lieuNaissance: { type: string, example: "Paris" }
+                username: { type: string, example: "mdupont" }
+                password: { type: string, example: "password123" }
+                matricule: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  # ==========================================
+  # 6. VIE SCOLAIRE
+  # ==========================================
+  /emplois:
+    post:
+      tags: [6. Vie Scolaire]
+      summary: 6.1 Assigner un horaire (Emploi du temps)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jour: { type: string, example: "Lundi" }
+                heure: { type: string, example: "08:00" }
+                idClasse: { type: integer, example: 1 }
+                idCours: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  /titulaires:
+    post:
+      tags: [6. Vie Scolaire]
+      summary: 6.2 Assigner un professeur principal
+      description: Nécessite idPers (Enseignant) et idSalle.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idPers: { type: integer, example: 1 }
+                idSalle: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  /notifications:
+    post:
+      tags: [6. Vie Scolaire]
+      summary: 6.3 Envoyer une Notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objet: { type: string, example: "Réunion Parents-Profs" }
+                information: { type: string, example: "La réunion aura lieu vendredi à 18h." }
+                type_message: { type: integer, example: 1, description: "1 = Tous les parents" }
+      responses:
+        '201': { description: Succès }
+
+  # ==========================================
+  # 7. EVALUATIONS
+  # ==========================================
+  /sessions:
+    post:
+      tags: [7. Évaluations]
+      summary: 7.1 Créer une Session d'évaluation
+      description: Nécessite l'idTrimestre et l'idPers du responsable (ex: enseignant ou admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle: { type: string, example: "Séquence 1" }
+                description: { type: string, example: "Evaluation de mi-trimestre" }
+                idTrimestre: { type: integer, example: 1 }
+                idPers: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  /evaluations:
+    post:
+      tags: [7. Évaluations]
+      summary: 7.2 Saisir une note (Évaluation)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note: { type: number, example: 15.5 }
+                appreciation: { type: string, example: "Bon travail" }
+                matricule: { type: integer, example: 1 }
+                idEpreuve: { type: integer, example: 1 }
+                idCours: { type: integer, example: 1 }
+                idSession: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }
+
+  /bulletins/generate/{matricule}/{idSession}:
+    post:
+      tags: [7. Évaluations]
+      summary: 7.3 Générer un bulletin
       parameters:
-        - name: idClasse
+        - name: matricule
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idSession
           in: path
           required: true
           schema:
             type: integer
       responses:
-        '200':
-          description: Succès
+        '200': { description: Succès }
+
+  # ==========================================
+  # 8. FINANCE
+  # ==========================================
+  /paiements:
+    post:
+      tags: [8. Finance]
+      summary: 8.1 Enregistrer un paiement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matricule: { type: integer, example: 1 }
+                idAca: { type: integer, example: 1 }
+                montant: { type: number, example: 5000 }
+                comentaire: { type: string, example: "Tranche 1" }
+      responses:
+        '201': { description: Succès }
+
+  /salaires:
+    post:
+      tags: [8. Finance]
+      summary: 8.2 Verser un salaire
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                montant: { type: number, example: 150000 }
+                mois: { type: integer, example: 10 }
+                idPers: { type: integer, example: 1 }
+                idAca: { type: integer, example: 1 }
+      responses:
+        '201': { description: Succès }

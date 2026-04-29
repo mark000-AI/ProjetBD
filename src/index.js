@@ -21,13 +21,26 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 mountSwagger(app);
 
 // ─── Routes ──────────────────────────────────────────────────
-app.use('/api/auth',        require('./routes/authRoutes'));
-app.use('/api/eleves',     require('./routes/eleveRoutes'));
-app.use('/api/enseignants', require('./routes/enseignantRoutes'));
-app.use('/api/parents',    require('./routes/parentRoutes'));
-app.use('/api/cycles',     require('./routes/cycleRoutes'));
-app.use('/api/classes',    require('./routes/classeRoutes'));
-// Les prochaines routes seront ajoutées ici au fur et à mesure
+app.use('/api/auth',          require('./routes/authRoutes'));
+app.use('/api/eleves',        require('./routes/eleveRoutes'));
+app.use('/api/enseignants',   require('./routes/enseignantRoutes'));
+app.use('/api/parents',       require('./routes/parentRoutes'));
+app.use('/api/cycles',        require('./routes/cycleRoutes'));
+app.use('/api/classes',       require('./routes/classeRoutes'));
+app.use('/api/cours',         require('./routes/coursRoutes'));
+app.use('/api/salles',        require('./routes/salleRoutes'));
+app.use('/api/titulaires',    require('./routes/titulaireRoutes'));
+app.use('/api/annees',        require('./routes/anneeRoutes'));
+app.use('/api/trimestres',    require('./routes/trimestreRoutes'));
+app.use('/api/sessions',      require('./routes/sessionRoutes'));
+app.use('/api/emplois',       require('./routes/emploiRoutes'));
+app.use('/api/evaluations',   require('./routes/evaluationRoutes'));
+app.use('/api/paiements',     require('./routes/paiementRoutes'));
+app.use('/api/scolarites',    require('./routes/scolariteRoutes'));
+app.use('/api/salaires',      require('./routes/salaireRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/bulletins',     require('./routes/bulletinRoutes'));
+app.use('/api/admin',         require('./routes/adminRoutes'));
 
 // ─── Route de santé ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

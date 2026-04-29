@@ -16,10 +16,11 @@
  * @param  {...number} allowedTypes  typeAdmin autorisés
  */
 const allowAdmin = (...allowedTypes) => (req, res, next) => {
+  const types = allowedTypes.flat();
   if (req.user?.userType !== 'admin') {
     return res.status(403).json({ message: 'Accès réservé aux administrateurs' });
   }
-  if (!allowedTypes.includes(req.user.role)) {
+  if (!types.includes(req.user.role)) {
     return res.status(403).json({ message: 'Vous n\'avez pas les droits suffisants' });
   }
   next();
@@ -32,10 +33,11 @@ const allowAdmin = (...allowedTypes) => (req, res, next) => {
  * @param  {...number} allowedTypes  typePersonne autorisés
  */
 const allowPersonne = (...allowedTypes) => (req, res, next) => {
+  const types = allowedTypes.flat();
   if (req.user?.userType !== 'personne') {
     return res.status(403).json({ message: 'Accès réservé aux utilisateurs Personne' });
   }
-  if (!allowedTypes.includes(req.user.role)) {
+  if (!types.includes(req.user.role)) {
     return res.status(403).json({ message: 'Vous n\'avez pas les droits suffisants' });
   }
   next();
