@@ -7,7 +7,7 @@ const findAll = async (filters = {}) => {
   let query = `
     SELECT a.*
     FROM AnneeAcademique a
-    WHERE 1=1
+    WHERE a.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -23,7 +23,7 @@ const findAll = async (filters = {}) => {
  */
 const findById = async (idAnnee) => {
   const [rows] = await pool.query(
-    'SELECT a.* FROM AnneeAcademique a WHERE a.idAnnee = ? LIMIT 1',
+    'SELECT a.* FROM AnneeAcademique a WHERE a.isDelete = 0 AND a.idAnnee = ? LIMIT 1',
     [idAnnee]
   );
   return rows[0] || null;
@@ -71,7 +71,7 @@ const update = async (idAnnee, data) => {
  * Supprime une année
  */
 const remove = async (idAnnee) => {
-  const [result] = await pool.query('DELETE FROM AnneeAcademique WHERE idAnnee = ?', [idAnnee]);
+  const [result] = await pool.query('UPDATE AnneeAcademique SET isDelete = 1 WHERE idAnnee = ?', [idAnnee]);
   return result.affectedRows > 0;
 };
 

@@ -9,7 +9,7 @@ const findAll = async () => {
        p.idPers, p.nom, p.prenom, p.dateNaissance, p.lieuNaissance,
        p.mobile, p.phone, p.username, p.alanyaID, p.created_at
      FROM Personne p
-     WHERE p.typePersonne = 4
+     WHERE p.isDelete = 0 AND p.typePersonne = 4
      ORDER BY p.nom ASC, p.prenom ASC`
   );
   return rows;
@@ -25,7 +25,7 @@ const findById = async (idPers) => {
        p.idPers, p.nom, p.prenom, p.dateNaissance, p.lieuNaissance,
        p.mobile, p.phone, p.username, p.alanyaID, p.created_at
      FROM Personne p
-     WHERE p.idPers = ? AND p.typePersonne = 4 LIMIT 1`,
+     WHERE p.isDelete = 0 AND p.idPers = ? AND p.typePersonne = 4 LIMIT 1`,
     [idPers]
   );
   return rows[0] || null;
@@ -46,7 +46,7 @@ const findEnfantsByIdPers = async (idPers) => {
      LEFT JOIN Frequente f ON e.matricule = f.matricule
      LEFT JOIN Salle s     ON f.idSalle   = s.idSalle
      LEFT JOIN Classe c    ON s.idClasse  = c.idClasse
-     WHERE pa.idPers = ?
+     WHERE pa.isDelete = 0 AND pa.idPers = ?
      ORDER BY e.nom ASC`,
     [idPers]
   );
@@ -72,7 +72,7 @@ const findLienById = async (idParent) => {
  */
 const isEnfantDejaLie = async (matricule) => {
   const [rows] = await pool.query(
-    `SELECT idParent FROM Parents WHERE matricule = ? LIMIT 1`,
+    `SELECT idParent FROM Parents WHERE isDelete = 0 AND matricule = ? LIMIT 1`,
     [matricule]
   );
   return rows.length > 0;
@@ -174,7 +174,7 @@ const updatePersonne = async (idPers, data) => {
   params.push(idPers);
 
   const [result] = await pool.query(
-    `UPDATE Personne SET ${fields.join(', ')} WHERE idPers = ?`,
+    `UPDATE Personne SET ${fields.join(', ')} WHERE isDelete = 0 AND idPers = ?`,
     params
   );
   return result.affectedRows;
@@ -186,7 +186,7 @@ const updatePersonne = async (idPers, data) => {
  */
 const removeEnfant = async (idParent) => {
   const [result] = await pool.query(
-    `DELETE FROM Parents WHERE idParent = ?`,
+    `UPDATE Parents SET isDelete = 1 WHERE idParent = ?`,
     [idParent]
   );
   return result.affectedRows;
@@ -201,12 +201,12 @@ const remove = async (idPers) => {
   try {
     await conn.beginTransaction();
     await conn.query(
-      `DELETE FROM Messages WHERE idParent IN
+      `UPDATE Messages SET isDelete = 1 WHERE idParent IN
          (SELECT idParent FROM Parents WHERE idPers = ?)`,
       [idPers]
     );
-    await conn.query(`DELETE FROM Parents  WHERE idPers = ?`, [idPers]);
-    await conn.query(`DELETE FROM Personne WHERE idPers = ?`, [idPers]);
+    await conn.query(`UPDATE Parents SET isDelete = 1 WHERE idPers = ?`, [idPers]);
+    await conn.query(`UPDATE Personne SET isDelete = 1 WHERE idPers = ?`, [idPers]);
     await conn.commit();
   } catch (err) {
     await conn.rollback();

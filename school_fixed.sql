@@ -8,6 +8,7 @@ CREATE TABLE `Admin`  (
   `mobile` varchar(15) NOT NULL,
   `alanyaID` varchar(15) NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID`)
 );
 
@@ -17,6 +18,7 @@ CREATE TABLE `AnneeAcademique`  (
   `periode` varchar(255) NOT NULL,
   `created_at` date NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idAnnee`)
 );
 
@@ -26,6 +28,7 @@ CREATE TABLE `Classe`  (
   `idCycle` int UNSIGNED NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idClasse`)
 );
 
@@ -39,6 +42,7 @@ CREATE TABLE `Cours`  (
   `actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idCours`)
 );
 
@@ -48,6 +52,7 @@ CREATE TABLE `Cycle`  (
   `description` tinytext CHARACTER SET utf8mb4 NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idCycle`)
 );
 
@@ -55,6 +60,7 @@ CREATE TABLE `Discipline`  (
   `ID` int UNSIGNED NOT NULL,
   `libelle` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
   `points` int UNSIGNED NOT NULL DEFAULT 0,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID` DESC)
 );
 
@@ -71,6 +77,7 @@ CREATE TABLE `Eleve`  (
   `idVilleNaissance` int UNSIGNED NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`matricule`)
 );
 
@@ -82,6 +89,7 @@ CREATE TABLE `EmploiDuTemps`  (
   `idCours` int UNSIGNED NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idTemps`)
 );
 
@@ -92,6 +100,7 @@ CREATE TABLE `Enseignant`  (
   `Actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idEnseignant`)
 );
 
@@ -103,6 +112,7 @@ CREATE TABLE `Epreuve`  (
   `idNature` int UNSIGNED NOT NULL,
   `idPers` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idEpreuve`)
 );
 
@@ -116,6 +126,7 @@ CREATE TABLE `Evaluation`  (
   `idSession` int UNSIGNED NOT NULL,
   `idPers` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idEval`)
 );
 
@@ -129,6 +140,7 @@ CREATE TABLE `FicheEnseignant`  (
   `commentaire` text CHARACTER SET utf8mb4 NOT NULL,
   `event_date` date NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idRap` DESC)
 );
 
@@ -140,12 +152,14 @@ CREATE TABLE `Frequente`  (
   `commentaire` varchar(255) NOT NULL DEFAULT 'RAS',
   `idAdmin` int NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idFrequente`)
 );
 
 CREATE TABLE `JourSemaine`  (
   `ID` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `libelle` varchar(15) NOT NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID`)
 );
 
@@ -156,6 +170,7 @@ CREATE TABLE `Justificatifs`  (
   `idDirecteur` int UNSIGNED NULL,
   `urlDoc` varchar(255) NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID`)
 );
 
@@ -170,6 +185,7 @@ CREATE TABLE `Livres`  (
   `totalCopie` smallint UNSIGNED NOT NULL DEFAULT 1,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idLivre`)
 );
 
@@ -183,6 +199,7 @@ CREATE TABLE `Messages`  (
   `AnneeAcade` varchar(15) NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `valider` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idMessages`)
 );
 
@@ -193,6 +210,7 @@ CREATE TABLE `Mode`  (
   `actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   `idFondateur` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idMode`)
 );
 
@@ -200,6 +218,7 @@ CREATE TABLE `NatureEpreuve`  (
   `idNature` int UNSIGNED NOT NULL,
   `libelle` varchar(255) NOT NULL DEFAULT 'INDEFINI' COMMENT 'Controle Continu, Examen, Devoir Mercredi, Devoir Week End',
   `description` tinytext CHARACTER SET utf8mb4 NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idNature`)
 );
 
@@ -215,6 +234,7 @@ CREATE TABLE `Paiement`  (
   `idPers` int UNSIGNED NOT NULL,
   `datePaie` date NOT NULL,
   `dateEnregistrer` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idPaie`)
 );
 
@@ -224,6 +244,7 @@ CREATE TABLE `Parents`  (
   `matricule` int UNSIGNED NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idParent`),
   UNIQUE INDEX `uniqueParent`(`idPers`, `matricule`) USING BTREE
 );
@@ -242,6 +263,7 @@ CREATE TABLE `Personne`  (
   `alanyaID` varchar(15) NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idPers`)
 );
 
@@ -249,6 +271,7 @@ CREATE TABLE `Quartier`  (
   `idQuartier` int UNSIGNED NOT NULL,
   `libelle` varchar(100) NOT NULL,
   `description` tinytext CHARACTER SET utf8mb4 NOT NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idQuartier`)
 );
 
@@ -262,6 +285,7 @@ CREATE TABLE `Rapport`  (
   `event_date` date NOT NULL,
   `idPers` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idRap` DESC)
 );
 
@@ -272,6 +296,7 @@ CREATE TABLE `Residents`  (
   `description` tinytext CHARACTER SET utf8mb4 NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idResi`)
 );
 
@@ -284,6 +309,7 @@ CREATE TABLE `Salle`  (
   `actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idSalle`)
 );
 
@@ -296,6 +322,7 @@ CREATE TABLE `Scolarite`  (
   `idCycle` int UNSIGNED NOT NULL,
   `idFondateur` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idScolarite`)
 );
 
@@ -306,6 +333,8 @@ CREATE TABLE `Session`  (
   `idTrimestre` int UNSIGNED NOT NULL,
   `idPers` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `data_passage` date NULL,
   PRIMARY KEY (`idSession`)
 );
 
@@ -313,6 +342,7 @@ CREATE TABLE `Specialite`  (
   `idSpecialite` int UNSIGNED NOT NULL,
   `libelle` varchar(255) NOT NULL,
   `idAdmin` int UNSIGNED NOT NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idSpecialite`)
 );
 
@@ -323,6 +353,7 @@ CREATE TABLE `Titulaire`  (
   `actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   `idAdmin` int UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idTitulaire`)
 );
 
@@ -335,6 +366,7 @@ CREATE TABLE `Tranches`  (
   `idScolarite` int UNSIGNED NOT NULL,
   `actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   `idFondateur` int UNSIGNED NOT NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idTranche`)
 );
 
@@ -344,6 +376,7 @@ CREATE TABLE `Trimestre`  (
   `periode` varchar(255) NOT NULL,
   `idAca` int UNSIGNED NOT NULL,
   `idAdmin` int NOT NULL,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idTrimes`)
 );
 
@@ -351,6 +384,7 @@ CREATE TABLE `VilleNaissance`  (
   `idVille` int UNSIGNED NOT NULL,
   `libelle` varchar(100) NOT NULL DEFAULT 'Autres',
   `actif` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
+  `isDelete` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`idVille`)
 );
 

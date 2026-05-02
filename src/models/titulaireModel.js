@@ -9,7 +9,7 @@ const findAll = async (filters = {}) => {
     FROM Titulaire t
     LEFT JOIN Personne p ON t.idPers = p.idPers
     LEFT JOIN Salle s ON t.idSalle = s.idSalle
-    WHERE 1=1
+    WHERE t.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -32,7 +32,7 @@ const findById = async (idTitulaire) => {
      LEFT JOIN Personne p ON t.idPers = p.idPers
      LEFT JOIN Salle s ON t.idSalle = s.idSalle
      LEFT JOIN Classe c ON s.idClasse = c.idClasse
-     WHERE t.idTitulaire = ? LIMIT 1`,
+     WHERE t.isDelete = 0 AND t.idTitulaire = ? LIMIT 1`,
     [idTitulaire]
   );
   return rows[0] || null;
@@ -81,7 +81,7 @@ const update = async (idTitulaire, data) => {
 
   values.push(idTitulaire);
   const [result] = await pool.query(
-    `UPDATE Titulaire SET ${updates.join(', ')} WHERE idTitulaire = ?`,
+    `UPDATE Titulaire SET ${updates.join(', ')} WHERE isDelete = 0 AND idTitulaire = ?`,
     values
   );
   return result.affectedRows > 0;
@@ -91,7 +91,7 @@ const update = async (idTitulaire, data) => {
  * Supprime un titulaire
  */
 const remove = async (idTitulaire) => {
-  const [result] = await pool.query('DELETE FROM Titulaire WHERE idTitulaire = ?', [idTitulaire]);
+  const [result] = await pool.query('UPDATE Titulaire SET isDelete = 1 WHERE idTitulaire = ?', [idTitulaire]);
   return result.affectedRows > 0;
 };
 
@@ -103,7 +103,7 @@ const findBySalle = async (idSalle) => {
     `SELECT t.*, p.nom, p.prenom, p.mobile
      FROM Titulaire t
      LEFT JOIN Personne p ON t.idPers = p.idPers
-     WHERE t.idSalle = ? AND t.actif = 1 LIMIT 1`,
+     WHERE t.isDelete = 0 AND t.idSalle = ? AND t.actif = 1 LIMIT 1`,
     [idSalle]
   );
   return rows[0] || null;

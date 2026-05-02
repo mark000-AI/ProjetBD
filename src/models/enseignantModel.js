@@ -14,7 +14,7 @@ const findAll = async () => {
      FROM Personne p
      JOIN Enseignant e ON p.idPers = e.idPers
      LEFT JOIN Cours c ON e.idCours = c.idCours
-     WHERE p.typePersonne = 1
+     WHERE p.isDelete = 0 AND p.typePersonne = 1
      ORDER BY p.nom ASC, p.prenom ASC`
   );
   return rows;
@@ -34,7 +34,7 @@ const findById = async (idEnseignant) => {
      FROM Personne p
      JOIN Enseignant e ON p.idPers = e.idPers
      LEFT JOIN Cours c ON e.idCours = c.idCours
-     WHERE e.idEnseignant = ? LIMIT 1`,
+     WHERE p.isDelete = 0 AND e.idEnseignant = ? LIMIT 1`,
     [idEnseignant]
   );
   return rows[0] || null;
@@ -54,7 +54,7 @@ const findByIdPers = async (idPers) => {
      FROM Personne p
      JOIN Enseignant e ON p.idPers = e.idPers
      LEFT JOIN Cours c ON e.idCours = c.idCours
-     WHERE p.idPers = ? LIMIT 1`,
+     WHERE p.isDelete = 0 AND p.idPers = ? LIMIT 1`,
     [idPers]
   );
   return rows[0] || null;
@@ -142,7 +142,7 @@ const updatePersonne = async (idPers, data) => {
   params.push(idPers);
 
   const [result] = await pool.query(
-    `UPDATE Personne SET ${fields.join(', ')} WHERE idPers = ?`,
+    `UPDATE Personne SET ${fields.join(', ')} WHERE isDelete = 0 AND idPers = ?`,
     params
   );
   return result.affectedRows;
@@ -183,8 +183,8 @@ const remove = async (idEnseignant, idPers) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    await conn.query('DELETE FROM Enseignant WHERE idEnseignant = ?', [idEnseignant]);
-    await conn.query('DELETE FROM Personne WHERE idPers = ?', [idPers]);
+    await conn.query('UPDATE Enseignant SET isDelete = 1 WHERE idEnseignant = ?', [idEnseignant]);
+    await conn.query('UPDATE Personne SET isDelete = 1 WHERE idPers = ?', [idPers]);
     await conn.commit();
   } catch (err) {
     await conn.rollback();

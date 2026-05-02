@@ -9,7 +9,7 @@ const findAll = async (filters = {}) => {
     SELECT e.*, v.libelle AS villeNaissance
     FROM Eleve e
     LEFT JOIN VilleNaissance v ON e.idVilleNaissance = v.idVille
-    WHERE 1=1
+    WHERE e.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -37,7 +37,7 @@ const findByMatricule = async (matricule) => {
     `SELECT e.*, v.libelle AS villeNaissance
      FROM Eleve e
      LEFT JOIN VilleNaissance v ON e.idVilleNaissance = v.idVille
-     WHERE e.matricule = ? LIMIT 1`,
+     WHERE e.isDelete = 0 AND e.matricule = ? LIMIT 1`,
     [matricule]
   );
   return rows[0] || null;
@@ -55,7 +55,7 @@ const findByClasse = async (idClasse, idAnnee) => {
      JOIN Frequente f ON e.matricule = f.matricule
      JOIN Salle s     ON f.idSalle   = s.idSalle
      LEFT JOIN VilleNaissance v ON e.idVilleNaissance = v.idVille
-     WHERE s.idClasse = ? AND f.idAcademi = ?
+     WHERE e.isDelete = 0 AND s.idClasse = ? AND f.idAcademi = ?
      ORDER BY e.nom ASC, e.prenom ASC`,
     [idClasse, idAnnee]
   );
@@ -133,11 +133,11 @@ const setActif = async (matricule, actif) => {
  * @param {number} matricule
  */
 const removeRelated = async (matricule) => {
-  await pool.query('DELETE FROM Evaluation WHERE matricule = ?', [matricule]);
-  await pool.query('DELETE FROM Rapport    WHERE matricule = ?', [matricule]);
-  await pool.query('DELETE FROM Paiement   WHERE matricule = ?', [matricule]);
-  await pool.query('DELETE FROM Frequente  WHERE matricule = ?', [matricule]);
-  await pool.query('DELETE FROM Parents    WHERE matricule = ?', [matricule]);
+  await pool.query('UPDATE Evaluation SET isDelete = 1 WHERE matricule = ?', [matricule]);
+  await pool.query('UPDATE Rapport SET isDelete = 1 WHERE matricule = ?', [matricule]);
+  await pool.query('UPDATE Paiement SET isDelete = 1 WHERE matricule = ?', [matricule]);
+  await pool.query('UPDATE Frequente SET isDelete = 1 WHERE matricule = ?', [matricule]);
+  await pool.query('UPDATE Parents SET isDelete = 1 WHERE matricule = ?', [matricule]);
 };
 
 /**
@@ -146,7 +146,7 @@ const removeRelated = async (matricule) => {
  */
 const remove = async (matricule) => {
   const [result] = await pool.query(
-    'DELETE FROM Eleve WHERE matricule = ?',
+    'UPDATE Eleve SET isDelete = 1 WHERE matricule = ?',
     [matricule]
   );
   return result.affectedRows;

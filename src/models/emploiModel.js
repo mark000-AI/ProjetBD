@@ -9,7 +9,7 @@ const findAll = async (filters = {}) => {
     FROM EmploiDuTemps e
     LEFT JOIN Classe c ON e.idClasse = c.idClasse
     LEFT JOIN Cours crs ON e.idCours = crs.idCours
-    WHERE 1=1
+    WHERE e.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -31,7 +31,7 @@ const findById = async (idTemps) => {
      FROM EmploiDuTemps e
      LEFT JOIN Classe c ON e.idClasse = c.idClasse
      LEFT JOIN Cours crs ON e.idCours = crs.idCours
-     WHERE e.idTemps = ? LIMIT 1`,
+     WHERE e.isDelete = 0 AND e.idTemps = ? LIMIT 1`,
     [idTemps]
   );
   return rows[0] || null;
@@ -79,7 +79,7 @@ const update = async (idTemps, data) => {
  * Supprime un emploi de temps
  */
 const remove = async (idTemps) => {
-  const [result] = await pool.query('DELETE FROM EmploiDuTemps WHERE idTemps = ?', [idTemps]);
+  const [result] = await pool.query('UPDATE EmploiDuTemps SET isDelete = 1 WHERE idTemps = ?', [idTemps]);
   return result.affectedRows > 0;
 };
 
@@ -88,7 +88,7 @@ const remove = async (idTemps) => {
  */
 const findByClasse = async (idClasse) => {
   const [rows] = await pool.query(
-    `SELECT e.* FROM EmploiDuTemps e WHERE e.idClasse = ? ORDER BY e.jour ASC, e.heure ASC`,
+    `SELECT e.* FROM EmploiDuTemps e WHERE e.isDelete = 0 AND e.idClasse = ? ORDER BY e.jour ASC, e.heure ASC`,
     [idClasse]
   );
   return rows;
@@ -103,7 +103,7 @@ const findByJour = async (jour) => {
      FROM EmploiDuTemps e
      LEFT JOIN Classe c ON e.idClasse = c.idClasse
      LEFT JOIN Cours crs ON e.idCours = crs.idCours
-     WHERE e.jour = ? ORDER BY e.heure ASC`,
+     WHERE e.isDelete = 0 AND e.jour = ? ORDER BY e.heure ASC`,
     [jour]
   );
   return rows;

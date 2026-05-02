@@ -8,7 +8,7 @@ const findAll = async (filters = {}) => {
     SELECT s.*, c.libelle AS classeLibelle
     FROM Salle s
     LEFT JOIN Classe c ON s.idClasse = c.idClasse
-    WHERE 1=1
+    WHERE s.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -31,7 +31,7 @@ const findById = async (idSalle) => {
      LEFT JOIN Classe c ON s.idClasse = c.idClasse
      LEFT JOIN Titulaire t ON s.idSalle = t.idSalle AND t.actif = 1
      LEFT JOIN Personne p ON t.idPers = p.idPers
-     WHERE s.idSalle = ? LIMIT 1`,
+     WHERE s.isDelete = 0 AND s.idSalle = ? LIMIT 1`,
     [idSalle]
   );
   return rows[0] || null;
@@ -79,7 +79,7 @@ const update = async (idSalle, data) => {
  * Supprime une salle
  */
 const remove = async (idSalle) => {
-  const [result] = await pool.query('DELETE FROM Salle WHERE idSalle = ?', [idSalle]);
+  const [result] = await pool.query('UPDATE Salle SET isDelete = 1 WHERE idSalle = ?', [idSalle]);
   return result.affectedRows > 0;
 };
 
@@ -88,7 +88,7 @@ const remove = async (idSalle) => {
  */
 const findByClasse = async (idClasse) => {
   const [rows] = await pool.query(
-    `SELECT s.* FROM Salle s WHERE s.idClasse = ? AND s.actif = 1 ORDER BY s.libelle ASC`,
+    `SELECT s.* FROM Salle s WHERE s.isDelete = 0 AND s.idClasse = ? AND s.actif = 1 ORDER BY s.libelle ASC`,
     [idClasse]
   );
   return rows;

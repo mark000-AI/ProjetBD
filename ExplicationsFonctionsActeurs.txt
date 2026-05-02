@@ -1,0 +1,36 @@
+1) le parent vient sur la plateforme(après paiement)
+il se connecte. après s'etre authentifié(BIENVENUE SUR NOTRE PLATEFORME), il peut:
+*consulter les notes de son enfant:
+-il entre les coordonnées de son enfant  ou tout simplement choisit le nom de l'un de ses enfants s'il en a plusieurs
+-si les coordonnées sont invalides, il repète l'opération jusqu'a un certain nombre de fois sinon, ca se bloque(3fois)
+-si les coordonnées sont valides il va pouvoir consulter les notes. et sur la plateforme des notes, elle se presente sous la forme suivante:matiere note coeff
+*consulter sa messagerie, en sachant que les messages sont recus chez chaque parent à temps réel question d'etre à l'affus des informations
+-il entre et a la vue sur les messages lus et non lus
+-il a l'opportunité de répondre à ces messages, ou mm d'en écrire(les messages peuvent etre ecris par le parent et reçu uniquement chez l'administrateur. car si un parent doit etre convoqué par un enseignant, il faudrait que le directeur ou l'administration soit au courant).
+-il peut egalement consulter les exercices que sont enfant a à faire
+
+2) L'enseignant après s'etre fait inscrit sur la plateforme par l'administrateur, celui ci se connecte en passant par l'etape de l'authentification
+* il choisit une matière
+-il peut enregistrer des notes pour chaque élève
+-il peut modifier une note en fonction de la discipline associée
+-ecrire à l'administration peut etre pour interpeler un parent concernant un eleve à cause de sa note (et maintenant apres une certaine periode, l'administration regroupe les plaintes et soumet au parent)
+*il peut envoyer un message directement à l'administrateur
+*il peut consulter sa messagerie uniquement
+*il peut verifier à la fin du mois si sa paie est disponible et lorsqu'il sera aller faire le decaissement, l'administration devra de son cote validé le paiement qui peut etre fait par virement ou pas cash
+*il peut entrer un exercice sur la plateforme ou meme un cours
+
+3)Le parent lors de l'inscription de son enfant
+lorsque le parent a avant de s'inscrire sur la plateforme par le biais de l'administrateur va commencer par payer les frais d'inscriptions à l'ecole ce qui va lui permettre d'avoir un compte à l'ecole. par suite après sa connexion, il devra cliquer surr l'onglet payer scolarité de mon enfant, ou il sera dirigeé pour un paiement de scolarité.
+-l'option paiement par virement se presente à lui. on le dirige avec les informations demandées, il fait le paiement à la banque ou au systeme bancairee associé à l'ecole. le virement fait, un message est envoyé à la cellule administrative, qui de chez lui maintenant pourra valider l'inscriptoion de l'eleve correspondant.
+*Maintenant, il y a l'option payement par tranche, avecc une tranche par trimestre bien définit. ça c'est pour des parents dans l'incapcité de payer la scolarité en un coup ou pour ceux qui ne sont pas certains de faire terminer leur enfant dans la meme ecole toute l'année*
+-l'option paiement par cash(rediriger virement). Ici, ce n'est plus direct que le versement en bank se fait. ce qui va se passer maintenant est que le parent qui n'a pas de compte ou qui n'a pas de smartphone, dans le delais peut donner de l'argent à la cellule administrative qui en présentiel va faire le versement à la banque avec son compte parent , va faire le paiment de l'enfant correspondant, et l'enregistrer directement parmi les enfants scolarisés.(les paiements de scolarité se font en fonction des niveaux)
+
+4)L'administration
+-il peut consulter les eleves/parents qui sont dans l'ecole
+-consulter les enseignants/personnels inscrient dans l'ecole
+-supprimer des enseignants/personnels/parents/eleves
+
+5-modification dans la BD:modifier la table session et ajouter la colonne data_passage,modifier toutes les tables en ajoutant une colonne idDelete(qui est une colonne pour gerer la suppression , losque l’utilisateur va vouloir supprimer quelque chose a partir de l’interface on va pas reellement supprimer donc donc par exemple si on veut supprimer un eleve on passera l’attribut de l’eleve a true et lorsqu’il n’est pas supprimer il sera par defaut a false et quand on voudra recuperer les donnees de la charge sur le frontend on recupera ce don’t le isDelete est a false)
+
+
+

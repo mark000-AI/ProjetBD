@@ -22,7 +22,7 @@ const findById = async (idClasse) => {
     `SELECT c.idClasse, c.libelle, c.idCycle, c.idAdmin, c.created_at, cy.libelle as cycle
      FROM Classe c
      LEFT JOIN Cycle cy ON c.idCycle = cy.idCycle
-     WHERE c.idClasse = ? LIMIT 1`,
+     WHERE c.isDelete = 0 AND c.idClasse = ? LIMIT 1`,
     [idClasse]
   );
   return rows[0] || null;
@@ -75,7 +75,7 @@ const update = async (idClasse, data) => {
   params.push(idClasse);
 
   const [result] = await pool.query(
-    `UPDATE Classe SET ${fields.join(', ')} WHERE idClasse = ?`,
+    `UPDATE Classe SET ${fields.join(', ')} WHERE Classe.isDelete = 0 AND idClasse = ?`,
     params
   );
   return result.affectedRows;
@@ -87,7 +87,7 @@ const update = async (idClasse, data) => {
  */
 const remove = async (idClasse) => {
   const [result] = await pool.query(
-    `DELETE FROM Classe WHERE idClasse = ?`,
+    `UPDATE Classe SET isDelete = 1 WHERE idClasse = ?`,
     [idClasse]
   );
   return result.affectedRows;

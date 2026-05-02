@@ -79,7 +79,7 @@ const update = async (idSalaire, data) => {
  * Supprime un salaire
  */
 const remove = async (idSalaire) => {
-  const [result] = await pool.query('DELETE FROM Salaire WHERE idSalaire = ?', [idSalaire]);
+  const [result] = await pool.query('UPDATE Salaire SET isDelete = 1 WHERE idSalaire = ?', [idSalaire]);
   return result.affectedRows > 0;
 };
 

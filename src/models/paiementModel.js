@@ -12,7 +12,7 @@ const findAll = async (filters = {}) => {
     LEFT JOIN AnneeAcademique a ON p.idAca = a.idAnnee
     LEFT JOIN Mode m ON p.idMode = m.idMode
     LEFT JOIN Personne pers ON p.idPers = pers.idPers
-    WHERE 1=1
+    WHERE p.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -37,7 +37,7 @@ const findById = async (idPaie) => {
      LEFT JOIN AnneeAcademique a ON p.idAca = a.idAnnee
      LEFT JOIN Mode m ON p.idMode = m.idMode
      LEFT JOIN Personne pers ON p.idPers = pers.idPers
-     WHERE p.idPaie = ? LIMIT 1`,
+     WHERE p.isDelete = 0 AND p.idPaie = ? LIMIT 1`,
     [idPaie]
   );
   return rows[0] || null;
@@ -86,7 +86,7 @@ const update = async (idPaie, data) => {
  * Supprime un paiement
  */
 const remove = async (idPaie) => {
-  const [result] = await pool.query('DELETE FROM Paiement WHERE idPaie = ?', [idPaie]);
+  const [result] = await pool.query('UPDATE Paiement SET isDelete = 1 WHERE idPaie = ?', [idPaie]);
   return result.affectedRows > 0;
 };
 
@@ -99,7 +99,7 @@ const findByEleve = async (matricule, idAca) => {
      FROM Paiement p
      LEFT JOIN AnneeAcademique a ON p.idAca = a.idAnnee
      LEFT JOIN Mode m ON p.idMode = m.idMode
-     WHERE p.matricule = ? AND p.idAca = ? ORDER BY p.datePaie DESC`,
+     WHERE p.isDelete = 0 AND p.matricule = ? AND p.idAca = ? ORDER BY p.datePaie DESC`,
     [matricule, idAca]
   );
   return rows;
@@ -111,7 +111,7 @@ const findByEleve = async (matricule, idAca) => {
 const getTotalPaid = async (matricule, idAca) => {
   const [rows] = await pool.query(
     `SELECT SUM(montant) as total FROM Paiement
-     WHERE matricule = ? AND idAca = ?`,
+     WHERE Paiement.isDelete = 0 AND matricule = ? AND idAca = ?`,
     [matricule, idAca]
   );
   return rows[0]?.total || 0;

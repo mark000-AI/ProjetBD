@@ -8,7 +8,7 @@ const findAll = async (filters = {}) => {
     SELECT m.*, p.nom AS expediteurNom, p.prenom AS expediteurPrenom
     FROM Messages m
     LEFT JOIN Personne p ON m.idExp_Pers = p.idPers
-    WHERE 1=1
+    WHERE m.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -29,7 +29,7 @@ const findById = async (idMessages) => {
     `SELECT m.*, p.nom AS expediteurNom, p.prenom AS expediteurPrenom
      FROM Messages m
      LEFT JOIN Personne p ON m.idExp_Pers = p.idPers
-     WHERE m.idMessages = ? LIMIT 1`,
+     WHERE m.isDelete = 0 AND m.idMessages = ? LIMIT 1`,
     [idMessages]
   );
   return rows[0] || null;
@@ -77,7 +77,7 @@ const update = async (idMessages, data) => {
  * Supprime une notification
  */
 const remove = async (idMessages) => {
-  const [result] = await pool.query('DELETE FROM Messages WHERE idMessages = ?', [idMessages]);
+  const [result] = await pool.query('UPDATE Messages SET isDelete = 1 WHERE idMessages = ?', [idMessages]);
   return result.affectedRows > 0;
 };
 
@@ -100,7 +100,7 @@ const findByParent = async (idParent) => {
     `SELECT m.*, p.nom AS expediteurNom, p.prenom AS expediteurPrenom
      FROM Messages m
      LEFT JOIN Personne p ON m.idExp_Pers = p.idPers
-     WHERE m.idParent = ? ORDER BY m.created_at DESC`,
+     WHERE m.isDelete = 0 AND m.idParent = ? ORDER BY m.created_at DESC`,
     [idParent]
   );
   return rows;

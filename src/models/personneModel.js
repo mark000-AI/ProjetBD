@@ -9,24 +9,37 @@ const findAll = async () => {
        p.idPers, p.nom, p.prenom, p.dateNaissance, p.lieuNaissance,
        p.mobile, p.phone, p.username, p.alanyaID, p.created_at
      FROM Personne p
-     WHERE p.typePersonne = 4
+     WHERE p.isDelete = 0 AND p.typePersonne = 4
      ORDER BY p.nom ASC, p.prenom ASC`
   );
   return rows;
 };
 
 /**
- * Récupère un parent par idPers.
+ * Récupère un parent par idPers (ou une personne générique si on enlève le typePersonne).
  * @param {number} idPers
  */
 const findById = async (idPers) => {
   const [rows] = await pool.query(
     `SELECT
        p.idPers, p.nom, p.prenom, p.dateNaissance, p.lieuNaissance,
-       p.mobile, p.phone, p.username, p.alanyaID, p.created_at
+       p.mobile, p.phone, p.typePersonne, p.username, p.alanyaID, p.created_at
      FROM Personne p
-     WHERE p.idPers = ? AND p.typePersonne = 4 LIMIT 1`,
+     WHERE p.isDelete = 0 AND p.idPers = ? LIMIT 1`,
     [idPers]
+  );
+  return rows[0] || null;
+};
+
+/**
+ * Trouve une Personne par son username.
+ * @param {string} username
+ * @returns {object|null}
+ */
+const findByUsername = async (username) => {
+  const [rows] = await pool.query(
+    'SELECT * FROM Personne WHERE isDelete = 0 AND username = ? LIMIT 1',
+    [username]
   );
   return rows[0] || null;
 };
@@ -46,7 +59,7 @@ const findEnfantsByIdPers = async (idPers) => {
      LEFT JOIN Frequente f ON e.matricule = f.matricule
      LEFT JOIN Salle s     ON f.idSalle   = s.idSalle
      LEFT JOIN Classe c    ON s.idClasse  = c.idClasse
-     WHERE pa.idPers = ?
+     WHERE pa.isDelete = 0 AND pa.idPers = ?
      ORDER BY e.nom ASC`,
     [idPers]
   );
@@ -59,7 +72,7 @@ const findEnfantsByIdPers = async (idPers) => {
  */
 const findLienById = async (idParent) => {
   const [rows] = await pool.query(
-    'SELECT * FROM Parents WHERE idParent = ? LIMIT 1',
+    'SELECT * FROM Parents WHERE isDelete = 0 AND idParent = ? LIMIT 1',
     [idParent]
   );
   return rows[0] || null;
@@ -71,7 +84,7 @@ const findLienById = async (idParent) => {
  */
 const findIdPersByIdParent = async (idParent) => {
   const [rows] = await pool.query(
-    'SELECT idPers FROM Parents WHERE idParent = ? LIMIT 1',
+    'SELECT idPers FROM Parents WHERE isDelete = 0 AND idParent = ? LIMIT 1',
     [idParent]
   );
   return rows[0]?.idPers || null;
@@ -81,7 +94,7 @@ const findIdPersByIdParent = async (idParent) => {
  * Vérifie si un username est déjà pris.
  */
 const isUsernameTaken = async (username, excludeIdPers = null) => {
-  let query = 'SELECT idPers FROM Personne WHERE username = ?';
+  let query = 'SELECT idPers FROM Personne WHERE isDelete = 0 AND username = ?';
   const params = [username];
   if (excludeIdPers) {
     query += ' AND idPers != ?';
@@ -173,7 +186,7 @@ const updatePersonne = async (idPers, data) => {
  */
 const removeEnfant = async (idParent) => {
   const [result] = await pool.query(
-    'DELETE FROM Parents WHERE idParent = ?',
+    'UPDATE Parents SET isDelete = 1 WHERE idParent = ?',
     [idParent]
   );
   return result.affectedRows;
@@ -187,12 +200,12 @@ const remove = async (idPers) => {
   try {
     await conn.beginTransaction();
     await conn.query(
-      `DELETE FROM Messages WHERE idParent IN
+      `UPDATE Messages SET isDelete = 1 WHERE idParent IN
          (SELECT idParent FROM Parents WHERE idPers = ?)`,
       [idPers]
     );
-    await conn.query('DELETE FROM Parents  WHERE idPers = ?', [idPers]);
-    await conn.query('DELETE FROM Personne WHERE idPers = ?', [idPers]);
+    await conn.query('UPDATE Parents SET isDelete = 1 WHERE idPers = ?', [idPers]);
+    await conn.query('UPDATE Personne SET isDelete = 1 WHERE idPers = ?', [idPers]);
     await conn.commit();
   } catch (err) {
     await conn.rollback();
@@ -203,7 +216,7 @@ const remove = async (idPers) => {
 };
 
 module.exports = {
-  findAll, findById, findEnfantsByIdPers, findLienById,
+  findAll, findById, findByUsername, findEnfantsByIdPers, findLienById,
   findIdPersByIdParent, isUsernameTaken,
   create, addEnfant, updatePersonne, removeEnfant, remove,
 };

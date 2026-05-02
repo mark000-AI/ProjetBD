@@ -8,7 +8,7 @@ const findAll = async (filters = {}) => {
     SELECT s.*, cy.libelle AS cycleLibelle
     FROM Scolarite s
     LEFT JOIN Cycle cy ON s.idCycle = cy.idCycle
-    WHERE 1=1
+    WHERE s.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -27,7 +27,7 @@ const findById = async (idScolarite) => {
     `SELECT s.*, cy.libelle AS cycleLibelle
      FROM Scolarite s
      LEFT JOIN Cycle cy ON s.idCycle = cy.idCycle
-     WHERE s.idScolarite = ? LIMIT 1`,
+     WHERE s.isDelete = 0 AND s.idScolarite = ? LIMIT 1`,
     [idScolarite]
   );
   return rows[0] || null;
@@ -38,7 +38,7 @@ const findById = async (idScolarite) => {
  */
 const findByCycle = async (idCycle) => {
   const [rows] = await pool.query(
-    `SELECT s.* FROM Scolarite s WHERE s.idCycle = ? LIMIT 1`,
+    `SELECT s.* FROM Scolarite s WHERE s.isDelete = 0 AND s.idCycle = ? LIMIT 1`,
     [idCycle]
   );
   return rows[0] || null;
@@ -86,7 +86,7 @@ const update = async (idScolarite, data) => {
  * Supprime une scolarité
  */
 const remove = async (idScolarite) => {
-  const [result] = await pool.query('DELETE FROM Scolarite WHERE idScolarite = ?', [idScolarite]);
+  const [result] = await pool.query('UPDATE Scolarite SET isDelete = 1 WHERE idScolarite = ?', [idScolarite]);
   return result.affectedRows > 0;
 };
 

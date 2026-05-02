@@ -12,7 +12,7 @@ const findAll = async (filters = {}) => {
     LEFT JOIN Epreuve ep ON e.idEpreuve = ep.idEpreuve
     LEFT JOIN Cours c ON e.idCours = c.idCours
     LEFT JOIN Session s ON e.idSession = s.idSession
-    WHERE 1=1
+    WHERE e.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -40,7 +40,7 @@ const findById = async (idEval) => {
      LEFT JOIN Cours c ON e.idCours = c.idCours
      LEFT JOIN Session s ON e.idSession = s.idSession
      LEFT JOIN Personne p ON e.idPers = p.idPers
-     WHERE e.idEval = ? LIMIT 1`,
+     WHERE e.isDelete = 0 AND e.idEval = ? LIMIT 1`,
     [idEval]
   );
   return rows[0] || null;
@@ -88,7 +88,7 @@ const update = async (idEval, data) => {
  * Supprime une évaluation
  */
 const remove = async (idEval) => {
-  const [result] = await pool.query('DELETE FROM Evaluation WHERE idEval = ?', [idEval]);
+  const [result] = await pool.query('UPDATE Evaluation SET isDelete = 1 WHERE idEval = ?', [idEval]);
   return result.affectedRows > 0;
 };
 
@@ -102,7 +102,7 @@ const findByEleve = async (matricule) => {
      LEFT JOIN Epreuve ep ON e.idEpreuve = ep.idEpreuve
      LEFT JOIN Cours c ON e.idCours = c.idCours
      LEFT JOIN Session s ON e.idSession = s.idSession
-     WHERE e.matricule = ? ORDER BY s.libelle DESC, c.libelle ASC`,
+     WHERE e.isDelete = 0 AND e.matricule = ? ORDER BY s.libelle DESC, c.libelle ASC`,
     [matricule]
   );
   return rows;
@@ -117,7 +117,7 @@ const findBySessionCours = async (idSession, idCours) => {
      FROM Evaluation e
      LEFT JOIN Eleve el ON e.matricule = el.matricule
      LEFT JOIN Epreuve ep ON e.idEpreuve = ep.idEpreuve
-     WHERE e.idSession = ? AND e.idCours = ? ORDER BY el.nom ASC, el.prenom ASC`,
+     WHERE e.isDelete = 0 AND e.idSession = ? AND e.idCours = ? ORDER BY el.nom ASC, el.prenom ASC`,
     [idSession, idCours]
   );
   return rows;
@@ -129,7 +129,7 @@ const findBySessionCours = async (idSession, idCours) => {
 const calculateMoyenne = async (matricule, idCours, idSession) => {
   const [rows] = await pool.query(
     `SELECT AVG(e.note) as moyenne FROM Evaluation e
-     WHERE e.matricule = ? AND e.idCours = ? AND e.idSession = ?`,
+     WHERE e.isDelete = 0 AND e.matricule = ? AND e.idCours = ? AND e.idSession = ?`,
     [matricule, idCours, idSession]
   );
   return rows[0]?.moyenne || 0;

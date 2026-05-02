@@ -20,7 +20,7 @@ const findById = async (idCycle) => {
   const [rows] = await pool.query(
     `SELECT idCycle, libelle, description, idAdmin, created
      FROM Cycle
-     WHERE idCycle = ? LIMIT 1`,
+     WHERE isDelete = 0 AND idCycle = ? LIMIT 1`,
     [idCycle]
   );
   return rows[0] || null;
@@ -77,7 +77,7 @@ const update = async (idCycle, data) => {
   params.push(idCycle);
 
   const [result] = await pool.query(
-    `UPDATE Cycle SET ${fields.join(', ')} WHERE idCycle = ?`,
+    `UPDATE Cycle SET ${fields.join(', ')} WHERE Cycle.isDelete = 0 AND idCycle = ?`,
     params
   );
   return result.affectedRows;
@@ -89,7 +89,7 @@ const update = async (idCycle, data) => {
  */
 const remove = async (idCycle) => {
   const [result] = await pool.query(
-    `DELETE FROM Cycle WHERE idCycle = ?`,
+    `UPDATE Cycle SET isDelete = 1 WHERE idCycle = ?`,
     [idCycle]
   );
   return result.affectedRows;

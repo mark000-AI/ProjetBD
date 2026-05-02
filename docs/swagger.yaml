@@ -1,8 +1,9 @@
 openapi: 3.0.3
 info:
-  title: School Management API
+  title: School Management API - EduGest
   description: |
-    API REST complète pour la gestion des écoles primaires.
+    API REST complète pour la gestion des écoles primaires et maternelles.
+    Basée sur les spécifications du document EduGest.
     
     Cette documentation est ordonnée **strictement par ordre d'exécution** (dépendances).
     Veuillez suivre cet ordre pour vos tests afin d'éviter les erreurs de clés étrangères.
@@ -57,10 +58,13 @@ paths:
                 username: { type: string }
                 password: { type: string }
                 userType: { type: string, enum: [admin, personne] }
-              example:
-                username: "admin"
-                password: "admin"
-                userType: "admin"
+      responses:
+        '200': { description: Succès }
+  
+  /auth/me:
+    get:
+      tags: [1. Authentification]
+      summary: Profil de l'utilisateur connecté
       responses:
         '200': { description: Succès }
 
@@ -70,7 +74,7 @@ paths:
   /annees:
     post:
       tags: [2. Structure Académique]
-      summary: 2.1 Créer une Année Académique
+      summary: Créer une Année Académique
       requestBody:
         required: true
         content:
@@ -87,12 +91,23 @@ paths:
       summary: Lister les Années Académiques
       responses:
         '200': { description: Succès }
+        
+  /annees/{idAnnee}:
+    put:
+      tags: [2. Structure Académique]
+      summary: Modifier une Année Académique
+      parameters: [{ name: idAnnee, in: path, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Succès } }
+    delete:
+      tags: [2. Structure Académique]
+      summary: Supprimer une Année Académique
+      parameters: [{ name: idAnnee, in: path, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Succès } }
 
   /trimestres:
     post:
       tags: [2. Structure Académique]
-      summary: 2.2 Créer un Trimestre
-      description: Nécessite l'ID d'une année (idAca) existante.
+      summary: Créer un Trimestre
       requestBody:
         required: true
         content:
@@ -117,7 +132,7 @@ paths:
   /cycles:
     post:
       tags: [3. Structure Pédagogique]
-      summary: 3.1 Créer un Cycle
+      summary: Créer un Cycle
       requestBody:
         required: true
         content:
@@ -138,8 +153,7 @@ paths:
   /classes:
     post:
       tags: [3. Structure Pédagogique]
-      summary: 3.2 Créer une Classe
-      description: Nécessite l'ID d'un cycle (idCycle).
+      summary: Créer une Classe
       requestBody:
         required: true
         content:
@@ -160,8 +174,7 @@ paths:
   /salles:
     post:
       tags: [3. Structure Pédagogique]
-      summary: 3.3 Créer une Salle
-      description: Associe une salle physique à une classe.
+      summary: Créer une Salle
       requestBody:
         required: true
         content:
@@ -175,12 +188,16 @@ paths:
                 idClasse: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [3. Structure Pédagogique]
+      summary: Lister les Salles
+      responses:
+        '200': { description: Succès }
 
   /cours:
     post:
       tags: [3. Structure Pédagogique]
-      summary: 3.4 Créer un Cours (Matière)
-      description: Nécessite l'ID d'une classe (idClasse).
+      summary: Créer un Cours (Matière)
       requestBody:
         required: true
         content:
@@ -194,6 +211,11 @@ paths:
                 idClasse: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [3. Structure Pédagogique]
+      summary: Lister les Cours
+      responses:
+        '200': { description: Succès }
 
   # ==========================================
   # 4. SCOLARITE & ELEVES
@@ -201,8 +223,7 @@ paths:
   /scolarites:
     post:
       tags: [4. Scolarité & Élèves]
-      summary: 4.1 Configurer la Scolarité
-      description: Définit les frais pour un cycle.
+      summary: Configurer la Scolarité
       requestBody:
         required: true
         content:
@@ -216,11 +237,15 @@ paths:
                 nbreTranche: { type: integer, example: 3 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [4. Scolarité & Élèves]
+      summary: Lister la configuration des scolarités
+      responses: { '200': { description: Succès } }
 
   /eleves:
     post:
       tags: [4. Scolarité & Élèves]
-      summary: 4.2 Inscrire un Élève
+      summary: Inscrire un Élève
       requestBody:
         required: true
         content:
@@ -241,6 +266,38 @@ paths:
       summary: Lister les Élèves
       responses:
         '200': { description: Succès }
+        
+  /eleves/{matricule}:
+    get:
+      tags: [4. Scolarité & Élèves]
+      summary: Obtenir les détails d'un élève
+      parameters: [{ name: matricule, in: path, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Succès } }
+    put:
+      tags: [4. Scolarité & Élèves]
+      summary: Modifier un élève
+      parameters: [{ name: matricule, in: path, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Succès } }
+    delete:
+      tags: [4. Scolarité & Élèves]
+      summary: Supprimer un élève
+      parameters: [{ name: matricule, in: path, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Succès } }
+      
+  /eleves/{matricule}/statut:
+    patch:
+      tags: [4. Scolarité & Élèves]
+      summary: Activer ou désactiver un élève
+      parameters: [{ name: matricule, in: path, required: true, schema: { type: integer } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actif: { type: integer, example: 1 }
+      responses: { '200': { description: Succès } }
 
   # ==========================================
   # 5. UTILISATEURS (PERSONNEL & PARENTS)
@@ -248,8 +305,7 @@ paths:
   /enseignants:
     post:
       tags: [5. Utilisateurs]
-      summary: 5.1 Créer un Enseignant
-      description: Nécessite un idCours existant.
+      summary: Créer un Enseignant
       requestBody:
         required: true
         content:
@@ -266,12 +322,15 @@ paths:
                 idCours: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [5. Utilisateurs]
+      summary: Lister les Enseignants
+      responses: { '200': { description: Succès } }
 
   /parents:
     post:
       tags: [5. Utilisateurs]
-      summary: 5.2 Créer un Parent
-      description: Nécessite le matricule d'un élève.
+      summary: Créer un Parent
       requestBody:
         required: true
         content:
@@ -288,6 +347,10 @@ paths:
                 matricule: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [5. Utilisateurs]
+      summary: Lister les Parents
+      responses: { '200': { description: Succès } }
 
   # ==========================================
   # 6. VIE SCOLAIRE
@@ -295,7 +358,7 @@ paths:
   /emplois:
     post:
       tags: [6. Vie Scolaire]
-      summary: 6.1 Assigner un horaire (Emploi du temps)
+      summary: Assigner un horaire (Emploi du temps)
       requestBody:
         required: true
         content:
@@ -309,12 +372,15 @@ paths:
                 idCours: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [6. Vie Scolaire]
+      summary: Voir les emplois du temps
+      responses: { '200': { description: Succès } }
 
   /titulaires:
     post:
       tags: [6. Vie Scolaire]
-      summary: 6.2 Assigner un professeur principal
-      description: Nécessite idPers (Enseignant) et idSalle.
+      summary: Assigner un professeur principal
       requestBody:
         required: true
         content:
@@ -326,11 +392,15 @@ paths:
                 idSalle: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [6. Vie Scolaire]
+      summary: Lister les professeurs titulaires
+      responses: { '200': { description: Succès } }
 
   /notifications:
     post:
       tags: [6. Vie Scolaire]
-      summary: 6.3 Envoyer une Notification
+      summary: Envoyer une Notification
       requestBody:
         required: true
         content:
@@ -343,6 +413,10 @@ paths:
                 type_message: { type: integer, example: 1, description: "1 = Tous les parents" }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [6. Vie Scolaire]
+      summary: Voir les notifications
+      responses: { '200': { description: Succès } }
 
   # ==========================================
   # 7. EVALUATIONS
@@ -350,8 +424,7 @@ paths:
   /sessions:
     post:
       tags: [7. Évaluations]
-      summary: 7.1 Créer une Session d'évaluation
-      description: Nécessite l'idTrimestre et l'idPers du responsable (ex: enseignant ou admin)
+      summary: Créer une Session d'évaluation
       requestBody:
         required: true
         content:
@@ -365,11 +438,15 @@ paths:
                 idPers: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [7. Évaluations]
+      summary: Lister les Sessions
+      responses: { '200': { description: Succès } }
 
   /evaluations:
     post:
       tags: [7. Évaluations]
-      summary: 7.2 Saisir une note (Évaluation)
+      summary: Saisir une note (Évaluation)
       requestBody:
         required: true
         content:
@@ -385,11 +462,15 @@ paths:
                 idSession: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [7. Évaluations]
+      summary: Lister les Notes
+      responses: { '200': { description: Succès } }
 
   /bulletins/generate/{matricule}/{idSession}:
     post:
       tags: [7. Évaluations]
-      summary: 7.3 Générer un bulletin
+      summary: Générer un bulletin
       parameters:
         - name: matricule
           in: path
@@ -410,7 +491,7 @@ paths:
   /paiements:
     post:
       tags: [8. Finance]
-      summary: 8.1 Enregistrer un paiement
+      summary: Enregistrer un paiement
       requestBody:
         required: true
         content:
@@ -424,11 +505,15 @@ paths:
                 comentaire: { type: string, example: "Tranche 1" }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [8. Finance]
+      summary: Lister les paiements
+      responses: { '200': { description: Succès } }
 
   /salaires:
     post:
       tags: [8. Finance]
-      summary: 8.2 Verser un salaire
+      summary: Verser un salaire
       requestBody:
         required: true
         content:
@@ -442,3 +527,20 @@ paths:
                 idAca: { type: integer, example: 1 }
       responses:
         '201': { description: Succès }
+    get:
+      tags: [8. Finance]
+      summary: Lister les salaires
+      responses: { '200': { description: Succès } }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+
+    Success:
+      type: object
+      properties:
+        message:
+          type: string

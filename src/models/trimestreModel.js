@@ -8,7 +8,7 @@ const findAll = async (filters = {}) => {
     SELECT t.*, a.libelle AS anneeLibelle
     FROM Trimestre t
     LEFT JOIN AnneeAcademique a ON t.idAca = a.idAnnee
-    WHERE 1=1
+    WHERE t.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -28,7 +28,7 @@ const findById = async (idTrimes) => {
     `SELECT t.*, a.libelle AS anneeLibelle
      FROM Trimestre t
      LEFT JOIN AnneeAcademique a ON t.idAca = a.idAnnee
-     WHERE t.idTrimes = ? LIMIT 1`,
+     WHERE t.isDelete = 0 AND t.idTrimes = ? LIMIT 1`,
     [idTrimes]
   );
   return rows[0] || null;
@@ -76,7 +76,7 @@ const update = async (idTrimes, data) => {
  * Supprime un trimestre
  */
 const remove = async (idTrimes) => {
-  const [result] = await pool.query('DELETE FROM Trimestre WHERE idTrimes = ?', [idTrimes]);
+  const [result] = await pool.query('UPDATE Trimestre SET isDelete = 1 WHERE idTrimes = ?', [idTrimes]);
   return result.affectedRows > 0;
 };
 
@@ -85,7 +85,7 @@ const remove = async (idTrimes) => {
  */
 const findByAnnee = async (idAca) => {
   const [rows] = await pool.query(
-    `SELECT t.* FROM Trimestre t WHERE t.idAca = ? ORDER BY t.libelle ASC`,
+    `SELECT t.* FROM Trimestre t WHERE t.isDelete = 0 AND t.idAca = ? ORDER BY t.libelle ASC`,
     [idAca]
   );
   return rows;

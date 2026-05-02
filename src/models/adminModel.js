@@ -20,7 +20,7 @@ const findByUsername = async (username) => {
  */
 const findById = async (id) => {
   const [rows] = await pool.query(
-    'SELECT ID, nom, username, typeAdmin, mobile, alanyaID, created_at FROM Admin WHERE ID = ? LIMIT 1',
+    'SELECT ID, nom, username, typeAdmin, mobile, alanyaID, created_at FROM Admin WHERE isDelete = 0 AND ID = ? LIMIT 1',
     [id]
   );
   return rows[0] || null;

@@ -10,7 +10,7 @@ const findAll = async (filters = {}) => {
     LEFT JOIN Trimestre t ON s.idTrimestre = t.idTrimes
     LEFT JOIN AnneeAcademique a ON t.idAca = a.idAnnee
     LEFT JOIN Personne p ON s.idPers = p.idPers
-    WHERE 1=1
+    WHERE s.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -32,7 +32,7 @@ const findById = async (idSession) => {
      LEFT JOIN Trimestre t ON s.idTrimestre = t.idTrimes
      LEFT JOIN AnneeAcademique a ON t.idAca = a.idAnnee
      LEFT JOIN Personne p ON s.idPers = p.idPers
-     WHERE s.idSession = ? LIMIT 1`,
+     WHERE s.isDelete = 0 AND s.idSession = ? LIMIT 1`,
     [idSession]
   );
   return rows[0] || null;
@@ -80,7 +80,7 @@ const update = async (idSession, data) => {
  * Supprime une session
  */
 const remove = async (idSession) => {
-  const [result] = await pool.query('DELETE FROM Session WHERE idSession = ?', [idSession]);
+  const [result] = await pool.query('UPDATE Session SET isDelete = 1 WHERE idSession = ?', [idSession]);
   return result.affectedRows > 0;
 };
 
@@ -89,7 +89,7 @@ const remove = async (idSession) => {
  */
 const findByTrimestre = async (idTrimestre) => {
   const [rows] = await pool.query(
-    `SELECT s.* FROM Session s WHERE s.idTrimestre = ? ORDER BY s.libelle ASC`,
+    `SELECT s.* FROM Session s WHERE s.isDelete = 0 AND s.idTrimestre = ? ORDER BY s.libelle ASC`,
     [idTrimestre]
   );
   return rows;

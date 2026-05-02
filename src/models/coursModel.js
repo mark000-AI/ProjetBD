@@ -10,7 +10,7 @@ const findAll = async (filters = {}) => {
     LEFT JOIN Classe cl ON c.idClasse = cl.idClasse
     LEFT JOIN Enseignant en ON c.idCours = en.idCours
     LEFT JOIN Personne e ON en.idPers = e.idPers
-    WHERE 1=1
+    WHERE c.isDelete = 0 AND 1=1
   `;
   const params = [];
 
@@ -31,7 +31,7 @@ const findById = async (idCours) => {
     `SELECT c.*, cl.libelle AS classeLibelle
      FROM Cours c
      LEFT JOIN Classe cl ON c.idClasse = cl.idClasse
-     WHERE c.idCours = ? LIMIT 1`,
+     WHERE c.isDelete = 0 AND c.idCours = ? LIMIT 1`,
     [idCours]
   );
   return rows[0] || null;
@@ -43,8 +43,8 @@ const findById = async (idCours) => {
 const create = async (data) => {
   const { libelle, note, coefficient, description, idClasse, idAdmin } = data;
   const [result] = await pool.query(
-    `INSERT INTO Cours (libelle, note, coefficient, description, idClasse, actif, idAdmin)
-     VALUES (?, ?, ?, ?, ?, 1, ?)`,
+    `INSERT INTO Cours (libelle, note, coefficient, description, idClasse, actif, idAdmin, created_at)
+     VALUES (?, ?, ?, ?, ?, 1, ?, NOW())`,
     [libelle, note || 0, coefficient || 1, description || '', idClasse, idAdmin]
   );
   return result.insertId;
@@ -79,7 +79,7 @@ const update = async (idCours, data) => {
  * Supprime un cours
  */
 const remove = async (idCours) => {
-  const [result] = await pool.query('DELETE FROM Cours WHERE idCours = ?', [idCours]);
+  const [result] = await pool.query('UPDATE Cours SET isDelete = 1 WHERE idCours = ?', [idCours]);
   return result.affectedRows > 0;
 };
 
@@ -88,7 +88,7 @@ const remove = async (idCours) => {
  */
 const findByClasse = async (idClasse) => {
   const [rows] = await pool.query(
-    `SELECT c.* FROM Cours c WHERE c.idClasse = ? AND c.actif = 1 ORDER BY c.libelle ASC`,
+    `SELECT c.* FROM Cours c WHERE c.isDelete = 0 AND c.idClasse = ? AND c.actif = 1 ORDER BY c.libelle ASC`,
     [idClasse]
   );
   return rows;
